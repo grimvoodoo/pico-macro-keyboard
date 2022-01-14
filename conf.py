@@ -1,58 +1,26 @@
-import board
-import digitalio
-import rotaryio
-import usb_hid
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.consumer_control_code import ConsumerControlCode
-import board
-import busio
+import time  
+from rotary_irq_rp2 import RotaryIRQ  
+from machine import Pin
+from machine import I2C, Pin
+from time import sleep
+from pico_i2c_lcd import I2cLcd
+# def initialise():
+# LCD screen vars
+i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
+I2C_ADDR = i2c.scan()[0]
+lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
 
-previous_value = True
+# LED vars
+led = Pin(21, Pin.OUT)
 
+# button vars
+btn = Pin(15, Pin.IN, Pin.PULL_DOWN)
 
-def rotary_encoder(key):
-    btn_pin = getattr(board, key)
-    btn = digitalio.DigitalInOut(btn_pin)
-    btn.direction = digitalio.Direction.INPUT
-    btn.pull = digitalio.Pull.UP
-    return btn
-
-
-def button(key):
-    btn_pin = getattr(board, key)
-    btn = digitalio.DigitalInOut(btn_pin)
-    btn.direction = digitalio.Direction.INPUT
-    btn.pull = digitalio.Pull.DOWN
-    return btn
-
-
-rotate_button = digitalio.DigitalInOut(board.GP18)
-rotate_button.direction = digitalio.Direction.INPUT
-rotate_button.pull = digitalio.Pull.UP
-lastPosition = 0
-
-
-led = digitalio.DigitalInOut(board.GP20)
-led.direction = digitalio.Direction.OUTPUT
-# btn0 = button("GP0")
-# btn1 = button("GP1")
-# btn2 = button("GP2")
-# btn3 = button("GP3")
-# btn4 = button("GP4")
-# btn5 = button("GP5")
-btn6 = button("GP6")
-btn7 = button("GP7")
-btn8 = button("GP8")
-btn9 = button("GP9")
-btn10 = button("GP10")
-btn11 = button("GP11")
-btn12 = button("GP12")
-btn13 = button("GP13")
-btn14 = button("GP14")
-btn15 = button("GP15")
-rotate_direction = rotary_encoder("GP16")
-rotate_step = rotary_encoder("GP17")
-# btn18 = button("GP18")
-# btn13 = rotary_encoder("GP13")
-# dirPin = rotary_encoder("GP14")
-# stepPin = rotary_encoder("GP15")
+# start of rotary code section
+SW=Pin(18,Pin.IN,Pin.PULL_UP)  
+r = RotaryIRQ(pin_num_clk=17,   
+       pin_num_dt=16,   
+       min_val=0,   
+       reverse=False,   
+       range_mode=RotaryIRQ.RANGE_UNBOUNDED)  
+val_old = r.value()
