@@ -1,23 +1,16 @@
 import time  
 from rotary_irq_rp2 import RotaryIRQ  
-from machine import I2C, Pin
+from machine import I2C, Pin, Timer
 from pico_i2c_lcd import I2cLcd
 from machine import Pin, Timer, time_pulse_us
 led = Pin(22, Pin.OUT)
 timer = Timer()
 
-def blink(timer):
+def blink():
     led.toggle()
 
+sleep = time.sleep
 # timer.init(freq=2.5, mode=Timer.PERIODIC, callback=blink)
-
-
-from rotary_irq_rp2 import RotaryIRQ  
-from machine import Pin, Timer
-from machine import I2C, Pin
-from time import sleep
-from pico_i2c_lcd import I2cLcd
-
 
 # def initialise():
 # LCD screen vars
@@ -80,18 +73,17 @@ def execute():
         try:
             
             # logic for combining buttons, like `shift` + `g` for example
-#             if btn1.value():
-#                 if btn2.value():
-#                     lcd.clear()
-#                     lcd.putstr("Button 1 + 2 Pressed""\n""\n")
-#                     print("btn1+2 pressed")
-#                     blink()
+            if btn1.value():
+                lcd.clear()
+                lcd.putstr("Button 1 Pressed""\n""\n")
+                print("btn1 pressed")
+                blink()
             if btn2.value():
                 lcd.clear()
                 lcd.putstr("Button 2 Pressed""\n""\n")
                 print("btn2 pressed")
 #                 timer.init(mode=Timer.ONE_SHOT, period=1000, callback=led.toggle())
-                time_pulse_us(pin=22, pulse_level=1, timeout_us=1000000)
+#                 time_pulse_us(pin=22, pulse_level=1, timeout_us=1000000)
             if btn3.value():
                 lcd.clear()
                 lcd.putstr("Button 3 Pressed""\n""\n")
@@ -126,16 +118,7 @@ def execute():
                 lcd.clear()
                 lcd.putstr("Button 9 Pressed""\n""\n")
                 print("btn9 pressed")
-                blink()
-            
-            
-        #         lcd.blink_cursor_off()
-            
-#             if btn.value():
-#                 print("button prerssed")
-#                 led_toggle()
-                
-                
+                blink()                
                 
             if not SW.value():
                 print("Button Pressed")
