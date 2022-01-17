@@ -1,23 +1,10 @@
 import conf
 import time
 import digitalio
-import board
-import busio
 import rotaryio
 import usb_hid
-import adafruit_character_lcd.character_lcd as character_lcd
-from adafruit_hid.keyboard import Keyboard
-from adafruit_hid.keycode import Keycode
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 
-keyboard = Keyboard(usb_hid.devices)
-
-i2c = busio.I2C(board.SCL, board.SDA)
-cols = 16
-rows = 2
-lcd = character_lcd.Character_LCD_I2C(i2c, cols, rows)
 
 # USB device
 # consumer = ConsumerControl(usb_hid.devices)
@@ -44,8 +31,7 @@ lcd = character_lcd.Character_LCD_I2C(i2c, cols, rows)
 #     return btn
 #
 #
-MEDIA = 0xe8
-"""Plays and pauses media"""
+
 
 
 def key_detection():
@@ -58,19 +44,15 @@ def key_detection():
                 if not conf.rotate_direction.value:
                     print("Rotated Right")
                     if mode < 3:
-                        keyboard.release_all()
                         mode += 1
                     else:
-                        keyboard.release_all()
                         mode = 1
                     time.sleep(0.5)
                 else:
                     print("Rotated left")
                     if mode > 1:
-                        keyboard.release_all()
                         mode -= 1
                     else:
-                        keyboard.release_all()
                         mode = 3
                     time.sleep(0.5)
                     time.sleep(0.5)
@@ -79,126 +61,85 @@ def key_detection():
             print(f"MODE {mode}: rotary button pressed")
             time.sleep(0.5)
         if conf.btn15.value:
-            print(f"MODE {mode}: button btn15 pressed")
-#             conf.led.value = True
-#             time.sleep(1)
-#             conf.led.value = False
+            print(f"MODE {mode}: button GP15 pressed")
+            conf.led.value = True
+            time.sleep(1)
+            conf.led.value = False
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn14.value:
-            print(f"MODE {mode}: button btn14 pressed")
+            print(f"MODE {mode}: button GP14 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn13.value:
-            print(f"MODE {mode}: button btn13 pressed")
+            print(f"MODE {mode}: button GP13 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn12.value:
-            print(f"MODE {mode}: button btn12 pressed")
+            print(f"MODE {mode}: button GP12 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn11.value:
-            print(f"MODE {mode}: button btn11 pressed")
+            print(f"MODE {mode}: button GP11 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn10.value:
-            print(f"MODE {mode}: button btn10 pressed")
+            print(f"MODE {mode}: button GP10 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn9.value:
-            print(f"MODE {mode}: button btn9 pressed")
+            print(f"MODE {mode}: button GP9 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn8.value:
-            print(f"MODE {mode}: button btn8 pressed")
+            print(f"MODE {mode}: button GP8 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn7.value:
-            print(f"MODE {mode}: button btn7 pressed")
+            print(f"MODE {mode}: button GP7 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
         if conf.btn6.value:
-            print(f"MODE {mode}: button btn6 pressed")
+            print(f"MODE {mode}: button GP6 pressed")
             # if mode == 1:
             # elif mode == 2:
             # elif mode == 3:
             time.sleep(0.5)
-        if conf.btn5.value:
-            print(f"MODE {mode}: button btn5 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn4.value:
-            print(f"MODE {mode}: button btn4 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn3.value:
-            print(f"MODE {mode}: button btn3 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn2.value:
-            print(f"MODE {mode}: button btn2 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            keyboard.press(0xfb)
-            conf.led.value = True
-            time.sleep(0.1)
-            conf.led.value = False
-            keyboard.release(0xfb)
-            0xf5
-            time.sleep(0.5)
-        if conf.btn1.value:
-            print(f"MODE {mode}: button btn1 pressed")
-            keyboard.press(MEDIA)
-            conf.led.value = True
-            time.sleep(0.5)
-            conf.led.value = False
-            keyboard.release(MEDIA)
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-        
         # if conf.btn5.value:
-        #     print(f"button btn5 pressed")
+        #     print(f"button GP5 pressed")
         #     time.sleep(0.2)
         # if conf.btn4.value:
-        #     print(f"button btn4 pressed")
+        #     print(f"button GP4 pressed")
         #     time.sleep(0.2)
         # if conf.btn3.value:
-        #     print(f"button btn3 pressed")
+        #     print(f"button GP3 pressed")
         #     time.sleep(0.2)
         # if conf.btn2.value:
-        #     print(f"button btn2 pressed")
+        #     print(f"button GP2 pressed")
         #     time.sleep(0.2)
         # if conf.btn1.value:
-        #     print(f"button btn1 pressed")
+        #     print(f"button GP1 pressed")
         #     time.sleep(0.2)
         # if conf.btn0.value:
-        #     print(f"button btn0 pressed")
+        #     print(f"button GP0 pressed")
         #     time.sleep(0.2)
 
 
