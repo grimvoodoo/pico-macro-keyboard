@@ -280,3 +280,4 @@ class LCD(object):
             self._col = 0
 
         self.set_cursor_pos(self._row, self._col)
+

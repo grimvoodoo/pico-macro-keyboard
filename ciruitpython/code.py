@@ -10,14 +10,27 @@ from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
 from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_hid.consumer_control_code import ConsumerControlCode
+# load the LCD library
+import lcd
+import i2c_pcf8574_interface
 
 
 keyboard = Keyboard(usb_hid.devices)
 
-i2c = busio.I2C(board.SCL, board.SDA)
-cols = 16
-rows = 2
-lcd = character_lcd.Character_LCD_I2C(i2c, cols, rows)
+i2c = busio.I2C(scl=board.GP1, sda=board.GP0)
+
+iface = i2c_pcf8574_interface.I2CPCF8574Interface(i2c, 0x27)
+display = lcd.LCD(iface, num_rows=4, num_cols=20)
+display.set_backlight(True)
+display.set_display_enabled(True)
+
+# for count in range(10000):
+#     display.set_cursor_pos(1, 4)
+#     display.print("%04d" % count)
+#     print("%04d" % count)
+#     time.sleep(1)
+
+# display.print("Hello, world.")
 
 # USB device
 # consumer = ConsumerControl(usb_hid.devices)
@@ -50,6 +63,9 @@ MEDIA = 0xe8
 
 def key_detection():
     mode = 1
+    display.print(f"mode: {mode}")
+    display.set_cursor_pos(1,0)
+    display.print("Blender Modeling")
     # for x in pin_list:
     #     btn = button(x)
     while True:
@@ -57,21 +73,35 @@ def key_detection():
             if not conf.rotate_step.value:
                 if not conf.rotate_direction.value:
                     print("Rotated Right")
+                    display.clear()
+                    display.print("Rotated Right")
+                    time.sleep(0.5)
                     if mode < 3:
                         keyboard.release_all()
                         mode += 1
+                        display.clear()
+                        display.print(f"mode: {mode}")
                     else:
                         keyboard.release_all()
                         mode = 1
+                        display.clear()
+                        display.print(f"mode: {mode}")
                     time.sleep(0.5)
                 else:
                     print("Rotated left")
+                    display.clear()
+                    display.print("Rotated Left")
+                    time.sleep(0.5)
                     if mode > 1:
                         keyboard.release_all()
                         mode -= 1
+                        display.clear()
+                        display.print(f"mode: {mode}")
                     else:
                         keyboard.release_all()
                         mode = 3
+                        display.clear()
+                        display.print(f"mode: {mode}")
                     time.sleep(0.5)
                     time.sleep(0.5)
             conf.previous_value = conf.rotate_step.value
