@@ -3,7 +3,6 @@ import time
 import digitalio
 import board
 import busio
-import rotaryio
 import usb_hid
 import adafruit_character_lcd.character_lcd as character_lcd
 from adafruit_hid.keyboard import Keyboard
@@ -14,222 +13,246 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 import lcd
 import i2c_pcf8574_interface
 
-
 keyboard = Keyboard(usb_hid.devices)
-
 i2c = busio.I2C(scl=board.GP1, sda=board.GP0)
-
 iface = i2c_pcf8574_interface.I2CPCF8574Interface(i2c, 0x27)
+mode = 1
+last_position_left = None
+last_position_right = None
+start = True
+current_time = time.monotonic()
+default_state = True
+backlight_state = True
+key_list = conf.key_list
+
+# rotation encoder vars
+rotate_drive_left = conf.rotate_drive_left
+rotate_drive_right = conf.rotate_drive_right
+rotate_step_left = conf.rotate_step_left
+rotate_step_right = conf.rotate_step_right
+
+direction_left = rotate_step_left.value
+
+# setup display
 display = lcd.LCD(iface, num_rows=4, num_cols=20)
 display.set_backlight(True)
 display.set_display_enabled(True)
 
-# for count in range(10000):
-#     display.set_cursor_pos(1, 4)
-#     display.print("%04d" % count)
-#     print("%04d" % count)
-#     time.sleep(1)
-
-# display.print("Hello, world.")
-
-# USB device
-# consumer = ConsumerControl(usb_hid.devices)
-
-# button delay
-# dl = 0.2
-
-# loop
-# while True:
-#
-#     # poll encoder button
-#     if conf.rotate_button.value == 0:
-#         consumer.send(ConsumerControlCode.MUTE)
-#         conf.led.value = True
-#         time.sleep(dl)
-#         conf.led.value = False
-#     time.sleep(0.1)
-
-# def button(key):
-#     btn_pin = getattr(board, key)
-#     btn = digitalio.DigitalInOut(btn_pin)
-#     btn.direction = digitalio.Direction.INPUT
-#     btn.pull = digitalio.Pull.DOWN
-#     return btn
-#
-#
-MEDIA = 0xe8
-"""Plays and pauses media"""
+# Sets the screen back to default after a set time, and turns off the lcd backlight after a longer time
+def sleep():
+    global current_time
+    global default_state
+    global backlight_state
+    sleep = 10
+    lights_out = 20
+    if time.monotonic() > (current_time + sleep) and default_state is False:
+        mode_change()
+        default_state = True
+        current_time = time.monotonic()
+    elif time.monotonic() > (current_time + lights_out):
+        display.set_backlight(False)
+        backlight_state = False
 
 
-def key_detection():
-    mode = 1
-    display.print(f"mode: {mode}")
-    display.set_cursor_pos(1,0)
-    display.print("Blender Modeling")
-    # for x in pin_list:
-    #     btn = button(x)
-    while True:
-        if conf.previous_value != conf.rotate_step.value:
-            if not conf.rotate_step.value:
-                if not conf.rotate_direction.value:
-                    print("Rotated Right")
-                    display.clear()
-                    display.print("Rotated Right")
-                    time.sleep(0.5)
-                    if mode < 3:
-                        keyboard.release_all()
-                        mode += 1
-                        display.clear()
-                        display.print(f"mode: {mode}")
-                    else:
-                        keyboard.release_all()
-                        mode = 1
-                        display.clear()
-                        display.print(f"mode: {mode}")
-                    time.sleep(0.5)
-                else:
-                    print("Rotated left")
-                    display.clear()
-                    display.print("Rotated Left")
-                    time.sleep(0.5)
-                    if mode > 1:
-                        keyboard.release_all()
-                        mode -= 1
-                        display.clear()
-                        display.print(f"mode: {mode}")
-                    else:
-                        keyboard.release_all()
-                        mode = 3
-                        display.clear()
-                        display.print(f"mode: {mode}")
-                    time.sleep(0.5)
-                    time.sleep(0.5)
-            conf.previous_value = conf.rotate_step.value
-        if not conf.rotate_button.value:
-            print(f"MODE {mode}: rotary button pressed")
-            time.sleep(0.5)
-        if conf.btn15.value:
-            print(f"MODE {mode}: button btn15 pressed")
-#             conf.led.value = True
-#             time.sleep(1)
-#             conf.led.value = False
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn14.value:
-            print(f"MODE {mode}: button btn14 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn13.value:
-            print(f"MODE {mode}: button btn13 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn12.value:
-            print(f"MODE {mode}: button btn12 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn11.value:
-            print(f"MODE {mode}: button btn11 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn10.value:
-            print(f"MODE {mode}: button btn10 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn9.value:
-            print(f"MODE {mode}: button btn9 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn8.value:
-            print(f"MODE {mode}: button btn8 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn7.value:
-            print(f"MODE {mode}: button btn7 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn6.value:
-            print(f"MODE {mode}: button btn6 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn5.value:
-            print(f"MODE {mode}: button btn5 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn4.value:
-            print(f"MODE {mode}: button btn4 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn3.value:
-            print(f"MODE {mode}: button btn3 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            time.sleep(0.5)
-        if conf.btn2.value:
-            print(f"MODE {mode}: button btn2 pressed")
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
-            keyboard.press(0xfb)
-            conf.led.value = True
-            time.sleep(0.1)
-            conf.led.value = False
-            keyboard.release(0xfb)
-            0xf5
-            time.sleep(0.5)
-        if conf.btn1.value:
-            print(f"MODE {mode}: button btn1 pressed")
-            keyboard.press(MEDIA)
-            conf.led.value = True
-            time.sleep(0.5)
-            conf.led.value = False
-            keyboard.release(MEDIA)
-            # if mode == 1:
-            # elif mode == 2:
-            # elif mode == 3:
+# turns on the LED for the desired duration then turns it off
+def led(duration):
+    conf.led.value = True
+    time.sleep(duration)
+    conf.led.value = False
+
+
+# prints the requested message to the lcd display
+def lcd_display(message):
+    global default_state
+    global backlight_state
+    if backlight_state is False:
+        display.set_backlight(True)
+    display.clear()
+    display.print(message)
+    default_state = False
+
+
+# sets the mode and prints it to the LCD display
+def mode_change():
+    global mode
+    keyboard.release_all()
+    if mode == 1:
+        lcd_display("Blender Model")
+        display.set_cursor_pos(1, 0)
+        display.print("Mode 1")
+    elif mode == 2:
+        lcd_display("Blender Sculpt")
+        display.set_cursor_pos(1, 0)
+        display.print("Mode 2")
+    elif mode == 3:
+        lcd_display("Krita Draw")
+        display.set_cursor_pos(1, 0)
+        display.print("Mode 3")
+
+
+# Checks if the mode should be increased or decreased and passes the result to mode_change()
+def mode_select(modifier):
+    global mode
+    if modifier == "up":
+        if mode < 3:
+            mode += 1
+        else:
+            mode = 1
+    elif modifier == "down":
+        if mode > 1:
+            mode -= 1
+        else:
+            mode = 3
+    mode_change()
+
+
+def volume_select(modifier):
+    global default_state
+    if modifier == "up":
+        lcd_display("Volume Up")
+        keyboard.press(0x80)
+        keyboard.release(0x80)
+        default_state = False
         
-        # if conf.btn5.value:
-        #     print(f"button btn5 pressed")
-        #     time.sleep(0.2)
-        # if conf.btn4.value:
-        #     print(f"button btn4 pressed")
-        #     time.sleep(0.2)
-        # if conf.btn3.value:
-        #     print(f"button btn3 pressed")
-        #     time.sleep(0.2)
-        # if conf.btn2.value:
-        #     print(f"button btn2 pressed")
-        #     time.sleep(0.2)
-        # if conf.btn1.value:
-        #     print(f"button btn1 pressed")
-        #     time.sleep(0.2)
-        # if conf.btn0.value:
-        #     print(f"button btn0 pressed")
-        #     time.sleep(0.2)
+    elif modifier == "down":
+        lcd_display("Volume Down")
+        keyboard.press(0x81)
+        keyboard.release(0x81)
+        default_state = False
+    
+    
+# sets the reading from the left rotary dial and passes it to the mode_select()
+def left_dial(position, direction):
+    global last_position_left
+    mode_count = 1
+    if last_position_left is None:
+        print("Initial setup")
+        last_position_left = position
+    elif position:
+        if direction is not True:
+            mode_select("up")
+#             print("turned right")
+            last_position_left = position
+        else:
+            mode_select("down")
+#             print("turned left")
+            last_position_left = position
+    elif not position:
+        if direction is True:
+            mode_select("up")
+#             print("turned right")
+            last_position_left = position
+        else:
+            mode_select("down")
+#             print("turned left")
+            last_position_left = position
 
 
-key_detection()
+def right_dial(position, direction):
+    global last_position_right
+    mode_count = 1
+    if last_position_right is None:
+        print("Initial setup")
+        last_position_right = position
+    elif position:
+        if direction is not True:
+            volume_select("up")
+#             print("turned right")
+            last_position_right = position
+        else:
+            volume_select("down")
+#             print("turned left")
+            last_position_right = position
+    elif not position:
+        if direction is True:
+            volume_select("up")
+#             print("turned right")
+            last_position_right = position
+        else:
+            volume_select("down")
+#             print("turned left")
+            last_position_right = position
+
+
+def check_button(btn):
+    global key_list
+    global mode
+    list = key_list[btn]
+    key = list[0]
+    print(key_list[btn][0])
+    lcd_display(key_list[btn][0])
+    keyboard.press(key_list[btn][1])
+    keyboard.release(key_list[btn][1])
+    time.sleep(0.2)
+    
+
+def run():
+    global mode
+    global previous_value
+    global position_left
+    global last_position_left
+    global last_position_right
+    global current_time
+    global default_state
+    mode_change()
+    time.sleep(0.5)
+
+    while True:
+        position_left = rotate_drive_left.value
+        direction_left = rotate_step_left.value
+        position_right = rotate_drive_right.value
+        direction_right = rotate_step_right.value
+        # left dial control
+        if last_position_left is None or position_left != last_position_left:
+            left_dial(position_left, direction_left)
+
+        if last_position_right is None or position_right != last_position_right:
+            right_dial(position_right, direction_right)
+            
+        if not conf.rotate_button1.value:
+            lcd_display("rotary button 1")
+            print(f"MODE {mode}: rotary button 1 pressed")
+            time.sleep(0.2)
+        if not conf.rotate_button2.value:
+            lcd_display("Volume Muted")
+            keyboard.press(0x7f)
+            keyboard.release(0x7f)
+            time.sleep(0.2)
+
+        if conf.btn17.value:
+            check_button("btn17")
+        if conf.btn16.value:
+            check_button("btn16")
+        if conf.btn15.value:
+            check_button("btn15")
+        if conf.btn14.value:
+            check_button("btn14")
+        if conf.btn13.value:
+            check_button("btn13")
+        if conf.btn12.value:
+            check_button("btn12")
+        if conf.btn11.value:
+            check_button("btn11")
+        if conf.btn10.value:
+            check_button("btn10")
+        if conf.btn9.value:
+            check_button("btn9")
+        if conf.btn8.value:
+            check_button("btn8")
+        if conf.btn7.value:
+            check_button("btn7")
+        if conf.btn6.value:
+            check_button("btn6")
+        if conf.btn5.value:
+            check_button("btn5")
+        if conf.btn4.value:
+            check_button("btn4")
+        if conf.btn3.value:
+            check_button("btn3")
+        if conf.btn2.value:
+            check_button("btn2")
+        if conf.btn1.value:
+            check_button("btn1")
+        sleep()
+
+run()
