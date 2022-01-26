@@ -23,7 +23,14 @@ start = True
 current_time = time.monotonic()
 default_state = True
 backlight_state = True
-key_list = conf.key_list
+
+# key setup
+shift = False
+shift_time = None
+ctrl = False
+ctrl_time = None
+alt = False
+alt_time = None
 
 # rotation encoder vars
 rotate_drive_left = conf.rotate_drive_left
@@ -43,6 +50,12 @@ def sleep():
     global current_time
     global default_state
     global backlight_state
+    global shift_time
+    global ctrl_time
+    global alt_time
+    global shift
+    global alt
+    global ctrl
     sleep = 10
     lights_out = 20
     if time.monotonic() > (current_time + sleep) and default_state is False:
@@ -52,6 +65,19 @@ def sleep():
     elif time.monotonic() > (current_time + lights_out):
         display.set_backlight(False)
         backlight_state = False
+    
+    if shift_time is not None:
+        if time.monotonic() > shift_time + 0.5:
+            shift_time = None
+            keyboard.release(Keycode.LEFT_SHIFT)
+    if ctrl_time is not None:
+        if time.monotonic() > ctrl_time + 0.5:
+            ctrl_time = None
+            keyboard.release(Keycode.LEFT_CONTROL)
+    if alt_time is not None:
+        if time.monotonic() > alt_time + 0.5:
+            alt_time = None
+            keyboard.release(Keycode.LEFT_ALT)
 
 
 # turns on the LED for the desired duration then turns it off
@@ -152,7 +178,6 @@ def right_dial(position, direction):
     global last_position_right
     mode_count = 1
     if last_position_right is None:
-        print("Initial setup")
         last_position_right = position
     elif position:
         if direction is not True:
@@ -175,17 +200,49 @@ def right_dial(position, direction):
 
 
 def check_button(btn):
-    global key_list
     global mode
-    list = key_list[btn]
-    key = list[0]
-    print(key_list[btn][0])
+    if mode == 1:
+        key_list = conf.mode_1
+    elif mode == 2:
+        key_list = conf.mode_2
+    elif mode == 3:
+        key_list = conf.mode_3
     lcd_display(key_list[btn][0])
     keyboard.press(key_list[btn][1])
     keyboard.release(key_list[btn][1])
     time.sleep(0.2)
     
 
+def special_buttons(btn):
+    global key_list
+    global mode
+    global shift
+    global shift_time
+    global ctrl
+    global ctrl_time
+    global alt
+    global alt_time
+    if mode == 1:
+        key_list = conf.mode_1
+    elif mode == 2:
+        key_list = conf.mode_2
+    elif mode == 3:
+        key_list = conf.mode_3
+    key = key_list[btn][0]
+    if key is "SHIFT":
+        shift = True
+        keyboard.press(key_list[btn][1])
+        shift_time = time.monotonic()
+    elif key is "CTRL":
+        ctrl = True
+        ctrl_time = time.monotonic()
+        keyboard.press(key_list[btn][1])
+    elif key is "ALT":
+        alt = True
+        alt_time = time.monotonic()
+        keyboard.press(key_list[btn][1])
+    
+    
 def run():
     global mode
     global previous_value
@@ -218,7 +275,14 @@ def run():
             keyboard.press(0x7f)
             keyboard.release(0x7f)
             time.sleep(0.2)
-
+            
+        if conf.btn1.value:
+            special_buttons("btn1")
+        if conf.btn5.value:
+            special_buttons("btn5")
+        if conf.btn9.value:
+            special_buttons("btn9")
+            
         if conf.btn17.value:
             check_button("btn17")
         if conf.btn16.value:
@@ -235,24 +299,19 @@ def run():
             check_button("btn11")
         if conf.btn10.value:
             check_button("btn10")
-        if conf.btn9.value:
-            check_button("btn9")
         if conf.btn8.value:
             check_button("btn8")
         if conf.btn7.value:
             check_button("btn7")
         if conf.btn6.value:
             check_button("btn6")
-        if conf.btn5.value:
-            check_button("btn5")
         if conf.btn4.value:
             check_button("btn4")
         if conf.btn3.value:
             check_button("btn3")
         if conf.btn2.value:
             check_button("btn2")
-        if conf.btn1.value:
-            check_button("btn1")
+        
         sleep()
 
 run()

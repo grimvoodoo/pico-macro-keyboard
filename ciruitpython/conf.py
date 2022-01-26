@@ -58,7 +58,27 @@ rotate_step_left = rotary_encoder("GP17")
 rotate_drive_right = rotary_encoder("GP19")
 rotate_step_right = rotary_encoder("GP20")
 
-key_list = {
+# mode_1 = {
+#     "btn1": ["CTRL", [Keycode.LEFT_CONTROL]],
+#     "btn2": ["X", [Keycode.X]],
+#     "btn3": ["Y", [Keycode.Y]],
+#     "btn4": ["Z", [Keycode.Z]],
+#     "btn5": ["SHIFT", [Keycode.LEFT_SHIFT]],
+#     "btn6": ["G", [Keycode.G]],
+#     "btn7": ["S", [Keycode.S]],
+#     "btn8": ["R", [Keycode.R]],
+#     "btn9": ["ALT", [Keycode.LEFT_ALT]],
+#     "btn10": ["A", [Keycode.A]],
+#     "btn11": ["M", [Keycode.M]],
+#     "btn12": ["F", [Keycode.F]],
+#     "btn13": ["CTRL + Z", [Keycode.LEFT_CONTROL, Keycode.Z]],
+#     "btn14": ["Skip Back", [0xea]],
+#     "btn15": ["Play/Pause", [0xe8]],
+#     "btn16": ["Spotify", [0x69]],
+#     "btn17": ["Skip Forward", [0xeb]],
+# }
+
+mode_1 = {
     "btn1": ["CTRL", Keycode.LEFT_CONTROL],
     "btn2": ["X", Keycode.X],
     "btn3": ["Y", Keycode.Y],
@@ -74,7 +94,47 @@ key_list = {
     "btn13": ["CTRL + Z", f"{Keycode.LEFT_CONTROL}, {Keycode.Z}"],
     "btn14": ["Skip Back", 0xea],
     "btn15": ["Play/Pause", 0xe8],
-    "btn16": ["Delete", 0x4c],
+    "btn16": ["Spotify", 0x69],
+    "btn17": ["Skip Forward", 0xeb],
+}
+
+mode_2 = {
+    "btn1": ["CTRL", Keycode.LEFT_CONTROL],
+    "btn2": ["X", Keycode.KEYPAD_ONE],
+    "btn3": ["Y", Keycode.KEYPAD_TWO],
+    "btn4": ["Z", Keycode.KEYPAD_THREE],
+    "btn5": ["SHIFT", Keycode.LEFT_SHIFT],
+    "btn6": ["G", Keycode.G],
+    "btn7": ["S", Keycode.S],
+    "btn8": ["R", Keycode.R],
+    "btn9": ["ALT", Keycode.LEFT_ALT],
+    "btn10": ["A", Keycode.A],
+    "btn11": ["M", Keycode.M],
+    "btn12": ["F", Keycode.F],
+    "btn13": ["CTRL + Z", 0x7a],
+    "btn14": ["Skip Back", 0xea],
+    "btn15": ["Play/Pause", 0xe8],
+    "btn16": ["Spotify", 0x68],
+    "btn17": ["Skip Forward", 0xeb],
+}
+
+mode_3 = {
+    "btn1": ["CTRL", Keycode.LEFT_CONTROL],
+    "btn2": ["X", Keycode.X],
+    "btn3": ["Y", Keycode.Y],
+    "btn4": ["Z", Keycode.Z],
+    "btn5": ["SHIFT", Keycode.LEFT_SHIFT],
+    "btn6": ["G", Keycode.G],
+    "btn7": ["S", Keycode.S],
+    "btn8": ["R", Keycode.R],
+    "btn9": ["ALT", Keycode.LEFT_ALT],
+    "btn10": ["A", Keycode.A],
+    "btn11": ["M", Keycode.M],
+    "btn12": ["F", Keycode.F],
+    "btn13": ["CTRL + Z", f"{Keycode.LEFT_CONTROL}, {Keycode.Z}"],
+    "btn14": ["Skip Back", 0xea],
+    "btn15": ["Play/Pause", 0xe8],
+    "btn16": ["Spotify", 0x69],
     "btn17": ["Skip Forward", 0xeb],
 }
 
