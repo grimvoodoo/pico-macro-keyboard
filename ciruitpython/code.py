@@ -1,18 +1,15 @@
 import conf
 import time
-import digitalio
 import board
 import busio
 import usb_hid
-import adafruit_character_lcd.character_lcd as character_lcd
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.consumer_control_code import ConsumerControlCode
 # load the LCD library
 import lcd
 import i2c_pcf8574_interface
 
+# Define vars
 keyboard = Keyboard(usb_hid.devices)
 i2c = busio.I2C(scl=board.GP1, sda=board.GP0)
 iface = i2c_pcf8574_interface.I2CPCF8574Interface(i2c, 0x27)
@@ -20,7 +17,7 @@ mode = 1
 last_position_left = None
 last_position_right = None
 start = True
-current_time = time.monotonic()
+screen_timeout = time.monotonic()
 default_state = True
 backlight_state = True
 
@@ -31,6 +28,7 @@ ctrl = False
 ctrl_time = None
 alt = False
 alt_time = None
+led_time = None
 
 # rotation encoder vars
 rotate_drive_left = conf.rotate_drive_left
@@ -38,16 +36,17 @@ rotate_drive_right = conf.rotate_drive_right
 rotate_step_left = conf.rotate_step_left
 rotate_step_right = conf.rotate_step_right
 
-direction_left = rotate_step_left.value
-
 # setup display
 display = lcd.LCD(iface, num_rows=4, num_cols=20)
 display.set_backlight(True)
 display.set_display_enabled(True)
 
+
 # Sets the screen back to default after a set time, and turns off the lcd backlight after a longer time
+# also managed the modifier keys such as ctrl, shift and alt. it puts a half second sleep on them which refreshes
+# every half a second, so I can hold the ctrl key and pass another which is used a lot in blender.
 def sleep():
-    global current_time
+    global screen_timeout
     global default_state
     global backlight_state
     global shift_time
@@ -56,16 +55,23 @@ def sleep():
     global shift
     global alt
     global ctrl
-    sleep = 10
+    global led_time
+    sleep_time = 10
     lights_out = 20
-    if time.monotonic() > (current_time + sleep) and default_state is False:
+    if time.monotonic() > (screen_timeout + sleep_time) and default_state is False:
         mode_change()
         default_state = True
-        current_time = time.monotonic()
-    elif time.monotonic() > (current_time + lights_out):
+        screen_timeout = time.monotonic()
+    elif time.monotonic() > (screen_timeout + lights_out):
         display.set_backlight(False)
         backlight_state = False
-    
+
+# the _time values are set to None by default and get set to `time.monotonic()` when the function is called.
+# so the warning about expecting float but getting None can be ignored.
+    if led_time is not None:
+        if time.monotonic() > led_time + 0.5:
+            conf.led.value = False
+            led_time = None
     if shift_time is not None:
         if time.monotonic() > shift_time + 0.5:
             shift_time = None
@@ -78,13 +84,6 @@ def sleep():
         if time.monotonic() > alt_time + 0.5:
             alt_time = None
             keyboard.release(Keycode.LEFT_ALT)
-
-
-# turns on the LED for the desired duration then turns it off
-def led(duration):
-    conf.led.value = True
-    time.sleep(duration)
-    conf.led.value = False
 
 
 # prints the requested message to the lcd display
@@ -207,14 +206,20 @@ def check_button(btn):
         key_list = conf.mode_2
     elif mode == 3:
         key_list = conf.mode_3
-    lcd_display(key_list[btn][0])
-    keyboard.press(key_list[btn][1])
-    keyboard.release(key_list[btn][1])
+    key_name = key_list[btn][0]
+    print(f"key_name = {key_name}")
+    key_press = key_list[btn][1]
+    for key in key_press:
+        keyboard.press(key)
+    for key in key_press:
+        keyboard.release(key)
+    lcd_display(key_name)
+#     keyboard.press(key_string)
+#     keyboard.release(key_string)
     time.sleep(0.2)
     
 
 def special_buttons(btn):
-    global key_list
     global mode
     global shift
     global shift_time
@@ -222,6 +227,12 @@ def special_buttons(btn):
     global ctrl_time
     global alt
     global alt_time
+    global led_time
+    global backlight_state
+    global screen_timeout
+    screen_timeout = time.monotonic()
+    if backlight_state is False:
+        display.set_backlight(True)
     if mode == 1:
         key_list = conf.mode_1
     elif mode == 2:
@@ -231,25 +242,27 @@ def special_buttons(btn):
     key = key_list[btn][0]
     if key is "SHIFT":
         shift = True
-        keyboard.press(key_list[btn][1])
+        keyboard.press(key_list[btn][1][0])
         shift_time = time.monotonic()
     elif key is "CTRL":
         ctrl = True
         ctrl_time = time.monotonic()
-        keyboard.press(key_list[btn][1])
+        keyboard.press(key_list[btn][1][0])
     elif key is "ALT":
         alt = True
         alt_time = time.monotonic()
-        keyboard.press(key_list[btn][1])
-    
-    
+        keyboard.press(key_list[btn][1][0])
+    conf.led.value = True
+    led_time = time.monotonic()
+
+
 def run():
     global mode
     global previous_value
     global position_left
     global last_position_left
     global last_position_right
-    global current_time
+    global screen_timeout
     global default_state
     mode_change()
     time.sleep(0.5)
