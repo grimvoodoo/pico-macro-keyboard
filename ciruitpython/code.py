@@ -131,6 +131,7 @@ def mode_select(modifier):
     mode_change()
 
 
+# changes the volume, this command is called from the `right_dial()` function
 def volume_select(modifier):
     global default_state
     if modifier == "up":
@@ -173,6 +174,8 @@ def left_dial(position, direction):
             last_position_left = position
 
 
+# checks which direction the right dial is turned and sends off those commands to
+# the `volume_select()` function
 def right_dial(position, direction):
     global last_position_right
     mode_count = 1
@@ -198,6 +201,8 @@ def right_dial(position, direction):
             last_position_right = position
 
 
+# processes pressed buttons against a dictionary in the conf file. The three modes are
+# defined by those dictionaries with lists of keystrokes to pass.
 def check_button(btn):
     global mode
     if mode == 1:
@@ -209,16 +214,19 @@ def check_button(btn):
     key_name = key_list[btn][0]
     print(f"key_name = {key_name}")
     key_press = key_list[btn][1]
+    # We have a list here in case there are multiple keystrokes to send, such as `ctrl + z`
     for key in key_press:
         keyboard.press(key)
     for key in key_press:
         keyboard.release(key)
     lcd_display(key_name)
-#     keyboard.press(key_string)
-#     keyboard.release(key_string)
+    # I added a 0.2 second sleep here so multiple key presses are not sent accidentally
     time.sleep(0.2)
     
 
+# This is similar to the function above but for any modifier keys, such as `ctrl`, `shift`,
+# `alt` I process them separately as we want them to be `toggled on` for a short period
+# so the other keystrokes can be processed.
 def special_buttons(btn):
     global mode
     global shift
@@ -256,6 +264,7 @@ def special_buttons(btn):
     led_time = time.monotonic()
 
 
+# This is the main function which calls all the others when it detects an input.
 def run():
     global mode
     global previous_value
@@ -324,7 +333,9 @@ def run():
             check_button("btn3")
         if conf.btn2.value:
             check_button("btn2")
-        
+        # The sleep function runs at the end and determines if anything should be toggled off
+        # such as the screen due to timeout or a special key or the led.
         sleep()
+
 
 run()
